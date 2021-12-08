@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
+set -ex
+
 DAY=$1
 
-touch "day${DAY}-1.txt"
-touch "day${DAY}-test.txt"
-echo "#!/usr/bin/env python3" >"day${DAY}-1.py"
+mkdir $DAY
+
+touch "${DAY}/input.txt"
+touch "${DAY}/test.txt"
+cp template.py "${DAY}/code-1.py"
