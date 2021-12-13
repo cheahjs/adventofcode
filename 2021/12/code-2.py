@@ -7,13 +7,16 @@ import functools
 import json
 import copy
 from collections import defaultdict
-
+import cProfile
 
 class Chain():
-    def __init__(self) -> None:
-        self.path = []
-        self.visited = {}
-        self.two_small = None
+    def __init__(self, prev_chain: Chain = None):
+        if prev_chain == None:
+            self.visited = []
+            self.two_small = None
+        else:
+            self.visited = prev_chain.visited[:]
+            self.two_small = prev_chain.two_small
 
     def has_visited(self, point):
         return point in self.visited
@@ -23,24 +26,17 @@ class Chain():
             if self.two_small != None:
                 return False
             self.two_small = point
-            # make two decisions:
-            # 1. visit again and mark two_small -> visit
-            # 2. don't visit again -> return False
-        if point == 'start' and len(self.path) > 0:
+        if point == 'start' and len(self.visited) > 0:
             return False
-        self.path.append(point)
-        self.visited[point] = True
+        self.visited.append(point)
         return True
 
 
 def is_small(point: str):
-    return point.lower() == point
-
+    return point.islower()
 
 def visit(graph, start, prev_chain: Chain):
-    # print('Visiting', start, 'with path', prev_chain.path)
-
-    new_chain = copy.deepcopy(prev_chain)
+    new_chain = Chain(prev_chain)
     if not new_chain.visit(start):
         return [None]
     if start == 'end':
@@ -51,7 +47,7 @@ def visit(graph, start, prev_chain: Chain):
     for point in next_points:
         chains.extend(visit(graph, point, new_chain))
 
-    return [x for x in chains if x != None]
+    return chains
 
 
 def main():
@@ -64,8 +60,8 @@ def main():
         graph[parts[1]].append(parts[0])
 
     paths = visit(graph, 'start', Chain())
-    # print('\n'.join(sorted([','.join(path.path) for path in paths])))
-    print(len(paths))
+    print(len([x for x in paths if x != None]))
 
 
+# cProfile.run('main()')
 main()
