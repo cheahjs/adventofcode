@@ -38,16 +38,16 @@ def is_small(point: str):
 def visit(graph, start, prev_chain: Chain):
     new_chain = Chain(prev_chain)
     if not new_chain.visit(start):
-        return [None]
+        return 0
     if start == 'end':
-        return [new_chain]
+        return 1
 
-    chains = []
+    sum = 0
     next_points = graph[start]
     for point in next_points:
-        chains.extend(visit(graph, point, new_chain))
+        sum += visit(graph, point, new_chain)
 
-    return chains
+    return sum
 
 
 def main():
@@ -60,7 +60,7 @@ def main():
         graph[parts[1]].append(parts[0])
 
     paths = visit(graph, 'start', Chain())
-    print(len([x for x in paths if x != None]))
+    print(paths)
 
 
 # cProfile.run('main()')
