@@ -34,33 +34,32 @@ def main():
         chunks.sort(key=lambda x: x[0])
         current_map = maps[current_type]
         new_chunks = []
-        for start, count in chunks:
-            end = start+count
+        for chunk_start, count in chunks:
+            chunk_end = chunk_start+count
             for map_start, map_count, map_dest_start, map_dest_type in current_map:
                 map_end = map_start+map_count
-                # not in range
-                if map_start > end:
-                    break
-                if map_end < start:
-                    break
-                # in range, process
-                # chunk fully mapped
-                if map_start <= start and map_end >= end:
-                    new_chunks.append((map_dest_start, count, map_dest_type))
-                    break
-                # chunk partially mapped
-                # map covers start of chunk
-                if map_start <= start and map_end > start:
-                    new_chunks.append((map_dest_start, map_end-start, map_dest_type))
-                    break
-                # map covers end of chunk
-                if map_start < end and map_end >= end:
-                    new_chunks.append((map_dest_start+end-map_start, map_end-end, map_dest_type))
-                    break
-                # map covers middle of chunk
-                if map_start > start and map_end < end:
-                    new_chunks.append((map_dest_start+map_start-start, map_count, map_dest_type))
-                    break
+                # start falls somewhere in the map range
+                if is_in_range(chunk_start, map_start, map_count):
+                    # end also falls in the map range, chunk is fully mapped
+                    if is_in_range(chunk_end, map_start, map_count):
+                        # add [map(start), map(end)] to new_chunks
+                        # [dest_start + (chunk-map start), count)
+                        new_chunks.append((map_dest_start + chunk_start - map_start, count))
+                    # end falls outside the map range, chunk is partially mapped
+                    else:
+                        # add [map(start), map(map_end)) to new_chunks
+                        # [dest_start + (chunk-map start), map_end - chunk_start]
+                        new_chunks.append((map_dest_start + chunk_start - map_start, map_end - chunk_start))
+                        # add [map_end, end) to chunks
+                        # this might be a new chunk, or it might overlap with the next map
+                        # new_chunks.append((map_dest_start, end - map_end))
+                # start falls outside the map range, but end falls inside the map range
+                elif is_in_range(chunk_end, map_start, map_count):
+                    # add [map_start, chunk_end) to new_chunks
+                    # [dest_start, chunk_end - map_start)]
+                    new_chunks.append((map_dest_start, map_end - chunk_start))
+                else:
+                    new_chunks.append((chunk_start, count))
         chunks = new_chunks
         current_type = current_map[0][3]
 
