@@ -4,9 +4,10 @@ import re
 import collections
 import itertools
 import functools
+import sys
 from collections import defaultdict
 
-def main():
-    input = [x for x in open('input.txt').read().strip().split('\n')]
+def main(input_file):
+    input = [x for x in open(input_file).read().strip().split('\n')]
 
-main()
+main(sys.argv[1] if len(sys.argv) > 1 else "input.txt")
