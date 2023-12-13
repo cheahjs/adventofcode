@@ -43,7 +43,7 @@ def main(input_file):
         record += '.'
         groups = tuple([int(x) for x in raw_groups.split(',')]*5)
         solve = possible_ways(record, groups, 0)
-        print(solve)
+        # print(solve)
         total += solve
     print(total)
 
